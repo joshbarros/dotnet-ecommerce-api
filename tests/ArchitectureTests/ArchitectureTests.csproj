@@ -29,6 +29,12 @@
     <ProjectReference Include="..\..\src\Modules\Catalog\Domain\Modules.Catalog.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Catalog\Application\Modules.Catalog.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Catalog\Infrastructure\Modules.Catalog.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Customers\Domain\Modules.Customers.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Customers\Application\Modules.Customers.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Customers\Infrastructure\Modules.Customers.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Orders\Domain\Modules.Orders.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Orders\Application\Modules.Orders.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Orders\Infrastructure\Modules.Orders.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

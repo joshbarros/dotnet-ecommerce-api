@@ -15,41 +15,63 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architectural documentatio
 
 ## 🚀 Features
 
-### Implemented
-- ✅ Complete project structure with modular organization
-- ✅ Shared Kernel (Common Domain) with:
-  - Entity, AggregateRoot, ValueObject base classes
-  - Result pattern for error handling
-  - Domain events infrastructure
-  - Repository and Unit of Work patterns
-- ✅ CQRS infrastructure (Commands, Queries, Handlers)
-  - MediatR integration
-  - Pipeline behaviors (Validation, Logging)
-  - FluentValidation support
-- ✅ Catalog Domain Module:
-  - Product aggregate with business rules
-  - Category aggregate with hierarchical support
-  - Money value object
-  - Domain events (ProductCreated, PriceChanged, etc.)
-  - Repository interfaces
-- ✅ Docker Compose for local development infrastructure
+### ✅ Implemented Modules
 
-### In Progress
-- 🚧 Catalog Application Layer (Commands/Queries)
-- 🚧 Catalog Infrastructure Layer (EF Core, Repositories)
-- 🚧 API Gateway configuration
-- 🚧 Comprehensive test suite
+#### Catalog Module (Complete)
+- ✅ Product & Category aggregates with full business logic
+- ✅ 10+ commands (Create, Update, Activate, Discontinue, Delete, etc.)
+- ✅ Search & filtering queries with pagination
+- ✅ Money and ProductName value objects
+- ✅ Domain events (ProductCreated, PriceChanged, etc.)
+- ✅ EF Core persistence with PostgreSQL
+- ✅ 16 RESTful API endpoints
+- ✅ Complete test coverage (Unit, Integration, Architecture)
 
-### Planned
-- 📋 Orders Module (complete vertical slice)
-- 📋 Customers Module
+#### Customers Module (Complete)
+- ✅ Customer aggregate with profile management
+- ✅ Address management (add/remove)
+- ✅ Email, Phone, CustomerName value objects
+- ✅ Customer status lifecycle (Active, Suspended, etc.)
+- ✅ 5+ commands for customer operations
+- ✅ EF Core with snake_case conventions
+- ✅ 6 RESTful API endpoints
+
+#### Orders Module (Complete)
+- ✅ Order aggregate with complete lifecycle (Draft → Delivered)
+- ✅ OrderItem entity with quantity management
+- ✅ 8 commands (Create, AddItem, Submit, Confirm, Ship, Cancel, etc.)
+- ✅ Cross-module integration (Customers, Catalog)
+- ✅ Order status transitions with validation
+- ✅ EF Core with owned entities
+- ✅ 9 RESTful API endpoints
+
+### 🏗️ Infrastructure & DevOps
+
+- ✅ **API Gateway** - Unified entry point with all modules registered
+- ✅ **Health Checks** - Database connectivity monitoring
+- ✅ **Logging** - Serilog with Seq integration
+- ✅ **CI/CD Pipeline** - GitHub Actions with:
+  - Automated testing (Unit, Integration, Architecture)
+  - Code coverage reporting
+  - Security scanning (CodeQL, dependency review)
+  - Docker multi-platform builds
+  - Performance testing with k6
+- ✅ **Docker Compose** - Complete local development stack
+- ✅ **Comprehensive Test Suite** - 110+ tests across all modules
+- ✅ **Response Compression** & **Output Caching**
+- ✅ **Rate Limiting** - API throttling
+- ✅ **Swagger/OpenAPI** - Complete API documentation
+
+### 📋 Planned Features
+
 - 📋 Inventory Module with concurrency control
 - 📋 Payments Module (Stripe integration)
-- 📋 Shipping Module
-- 📋 Authentication & Authorization (JWT)
-- 📋 API Rate Limiting & Caching
-- 📋 OpenTelemetry Observability
-- 📋 CI/CD Pipeline
+- 📋 Shipping Module with tracking
+- 📋 Authentication & Authorization (JWT, OAuth)
+- 📋 Full-text search with Elasticsearch
+- 📋 Outbox pattern for reliable messaging
+- 📋 OpenTelemetry distributed tracing
+- 📋 CQRS read models with Dapper
 
 ## 🛠️ Technology Stack
 
@@ -165,24 +187,34 @@ dotnet restore
 dotnet build
 ```
 
-### 5. Run Migrations (Coming Soon)
-
-```bash
-cd src/API/Gateway
-dotnet ef database update --context CatalogDbContext
-```
-
-### 6. Run the Application (Coming Soon)
+### 5. Run the Application
 
 ```bash
 cd src/API/Gateway
 dotnet run
 ```
 
+**Automatic migrations** will run on startup in development mode.
+
 The API will be available at:
 - HTTPS: `https://localhost:5001`
 - HTTP: `http://localhost:5000`
 - Swagger: `https://localhost:5001/swagger`
+- Health: `http://localhost:5000/health`
+
+### 6. Explore the API
+
+**Root Endpoint:**
+```bash
+curl http://localhost:5000/
+```
+
+Returns API information with available modules and endpoints.
+
+**API Endpoints (31 total):**
+- **Catalog**: `/api/v1/products`, `/api/v1/categories`
+- **Customers**: `/api/v1/customers`
+- **Orders**: `/api/v1/orders`
 
 ## 🧪 Running Tests
 
@@ -247,10 +279,38 @@ docker exec -it ecommerce-postgres psql -U ecommerce -d ecommerce
 - CategoryCreated
 - CategoryUpdated
 
-### Orders Module (Coming Soon)
-- Order aggregate
-- OrderItem entity
-- Order lifecycle management
+### Orders Module
+
+**Aggregates:**
+- **Order**: Complete order lifecycle with status transitions
+- **OrderItem**: Line items with product snapshots
+
+**Value Objects:**
+- Shipping Address, Money (reused from Catalog)
+
+**Domain Events:**
+- OrderCreated, OrderSubmitted, OrderConfirmed
+- OrderShipped, OrderDelivered, OrderCancelled
+
+**Cross-Module Integration:**
+- References CustomerID (Customers module)
+- References ProductID (Catalog module)
+- Uses Address and Money value objects
+
+### Customers Module
+
+**Aggregates:**
+- **Customer**: Profile with multiple addresses
+
+**Value Objects:**
+- **Email**: RFC-compliant email validation
+- **PhoneNumber**: International format support
+- **CustomerName**: First and last name
+- **Address**: Complete address information
+
+**Domain Events:**
+- CustomerCreated, CustomerEmailChanged
+- CustomerSuspended, CustomerActivated, CustomerDeleted
 
 ## 🎯 Development Guidelines
 

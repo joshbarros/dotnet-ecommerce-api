@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\Domain\Common.Domain.csproj" />
+    <ProjectReference Include="..\..\Customers\Domain\Modules.Customers.Domain.csproj" />
+    <ProjectReference Include="..\..\Catalog\Domain\Modules.Catalog.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
