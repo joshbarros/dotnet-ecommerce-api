@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Modules.Catalog.Infrastructure.Persistence;
 using Modules.Catalog.Presentation;
+using Modules.Customers.Infrastructure.Persistence;
+using Modules.Customers.Presentation;
+using Modules.Orders.Infrastructure.Persistence;
+using Modules.Orders.Presentation;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -39,7 +43,26 @@ try
         {
             Title = "ECommerce API",
             Version = "v1",
-            Description = "High-Performance E-Commerce Platform with DDD, Clean Architecture & CQRS"
+            Description = @"High-Performance E-Commerce Platform with DDD, Clean Architecture & CQRS
+
+**Modules:**
+- **Catalog**: Product and category management
+- **Customers**: Customer profile and address management
+- **Orders**: Complete order lifecycle management
+
+**Architecture:**
+- Clean Architecture with 4 layers (Domain, Application, Infrastructure, Presentation)
+- Domain-Driven Design (DDD) with aggregates, value objects, and domain events
+- CQRS pattern with MediatR
+- Event-Driven Architecture
+- Modular Monolith design
+
+**Technology Stack:**
+- .NET 8 LTS, C# 12
+- PostgreSQL with EF Core 8
+- Minimal APIs
+- FluentValidation
+- Serilog for logging"
         });
     });
 
@@ -82,6 +105,8 @@ try
 
     // Add modules
     builder.Services.AddCatalogModule(builder.Configuration);
+    builder.Services.AddCustomersModule(builder.Configuration);
+    builder.Services.AddOrdersModule(builder.Configuration);
 
     // Health checks
     builder.Services.AddHealthChecks()
@@ -91,7 +116,13 @@ try
             tags: new[] { "db", "postgres" })
         .AddDbContextCheck<CatalogDbContext>(
             name: "catalog-db",
-            tags: new[] { "db", "catalog" });
+            tags: new[] { "db", "catalog" })
+        .AddDbContextCheck<CustomersDbContext>(
+            name: "customers-db",
+            tags: new[] { "db", "customers" })
+        .AddDbContextCheck<OrdersDbContext>(
+            name: "orders-db",
+            tags: new[] { "db", "orders" });
 
     var app = builder.Build();
 
@@ -121,6 +152,20 @@ try
         name = "ECommerce API",
         version = "v1.0.0",
         status = "running",
+        modules = new[] { "Catalog", "Customers", "Orders" },
+        endpoints = new
+        {
+            catalog = "/api/v1/products, /api/v1/categories",
+            customers = "/api/v1/customers",
+            orders = "/api/v1/orders"
+        },
+        health = new
+        {
+            all = "/health",
+            ready = "/health/ready",
+            live = "/health/live"
+        },
+        documentation = "/swagger",
         timestamp = DateTime.UtcNow
     }).ExcludeFromDescription();
 
@@ -146,14 +191,27 @@ try
 
     // Map module endpoints
     app.MapCatalogEndpoints();
+    app.MapCustomersEndpoints();
+    app.MapOrdersEndpoints();
 
     // Run migrations in development
     if (app.Environment.IsDevelopment())
     {
         using var scope = app.Services.CreateScope();
+
         var catalogDb = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
         await catalogDb.Database.MigrateAsync();
-        Log.Information("Database migrations applied successfully");
+        Log.Information("Catalog database migrations applied");
+
+        var customersDb = scope.ServiceProvider.GetRequiredService<CustomersDbContext>();
+        await customersDb.Database.MigrateAsync();
+        Log.Information("Customers database migrations applied");
+
+        var ordersDb = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+        await ordersDb.Database.MigrateAsync();
+        Log.Information("Orders database migrations applied");
+
+        Log.Information("All database migrations applied successfully");
     }
 
     await app.RunAsync();
